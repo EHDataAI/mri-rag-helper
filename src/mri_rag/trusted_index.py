@@ -19,7 +19,7 @@ from pathlib import Path
 from .corpus import load_corpus, sha256_bytes, verify_manifest
 
 # Approved RC0 manifest; deliberate corpus releases must update this trusted pin.
-APPROVED_MANIFEST_SHA256 = "3e76f0a117cb704b3f8e1f8d2006ba1817b3f3cd94c76f5c3225368fc7332096"
+APPROVED_MANIFEST_SHA256 = "ad676a2e0e9d13796f9e712da1cbebb3c64d7ec515a5e4bbc6222726050a7e7c"
 APPROVED_FILES = {"corpus/cards.jsonl", "corpus/sources.json"}
 
 ROLE_MARKERS = re.compile(

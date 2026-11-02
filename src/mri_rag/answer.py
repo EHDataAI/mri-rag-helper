@@ -3,15 +3,129 @@
 from __future__ import annotations
 
 import json
+import re
 from http.client import HTTPConnection, HTTPException
 from urllib.parse import urlsplit
 
-from .corpus import load_corpus
+from .corpus import default_root, load_corpus
 from .generation_guard import assess_generated_answer, build_grounded_prompt
-from .retrieval import search_hybrid, search_sparse
+from .retrieval import search_hybrid, search_sparse, terms
 from .security import checked_ollama_url, screen_question
+from .trusted_index import load_trusted_corpus
 
 NOTICE = "Material educativo, no diagnóstico ni autorización para procedimientos clínicos."
+
+
+def _compose_approved_excerpts(question: str, hits: list[dict]) -> tuple[dict, str] | None:
+    """Select question-relevant, literal evidence; no paraphrasing or inferred claims.
+
+    This is a lexical sufficiency heuristic, not evidence of semantic entailment.
+    Return no answer rather than unrelated text when the text lacks question terms.
+    """
+    required_terms = set(terms(question))
+    if not required_terms:
+        return None
+    for hit in hits:
+        sentences = re.split(r"(?<=[.!?])\s+", hit["text"].strip())
+        options = []
+        for index, sentence in enumerate(sentences):
+            sentence = sentence.strip()
+            if len(sentence) < 24 or len(sentence) > 750:
+                continue
+            overlap = required_terms & set(terms(sentence, max_terms=None))
+            if overlap:
+                options.append((index, sentence, overlap))
+        if not options:
+            continue
+        chosen = []
+        covered = set()
+        # For comparisons, prefer distinct sentences that define each concept
+        # before a later sentence that merely mentions both terms together.
+        if "diferencia" in question.casefold() and len(required_terms) >= 2:
+            for index, _sentence, overlap in options:
+                if len(overlap) == 1 and overlap - covered:
+                    chosen.append(index)
+                    covered.update(overlap)
+                if len(covered) >= len(required_terms) or len(chosen) >= 3:
+                    break
+        for _ in range(3 - len(chosen)):
+            remaining = [item for item in options if item[0] not in chosen]
+            if not remaining:
+                break
+            definition = "significa" in question.casefold()
+            best = max(
+                remaining,
+                key=lambda item: (
+                    len(item[2] - covered),
+                    int(definition and "significa" in item[1].casefold()),
+                    len(item[2]),
+                    -item[0],
+                ),
+            )
+            if not (best[2] - covered):
+                break
+            chosen.append(best[0])
+            covered.update(best[2])
+            if covered >= required_terms:
+                break
+        # Multi-concept questions need support from the approved card; at least
+        # one question concept must also be explicit in the quoted sentence.
+        metadata = hit["title"] + " " + hit["keywords"] + " " + hit["text"]
+        document_coverage = required_terms & set(terms(metadata, max_terms=None))
+        if len(document_coverage) < min(2, len(required_terms)) or not covered:
+            continue
+        excerpt = "\n".join(f"[S1] {sentences[index].strip()}" for index in sorted(chosen))
+        if assess_generated_answer(excerpt, [hit]) == "accepted":
+            return hit, excerpt
+    return None
+
+
+def _comparison_needs_distinct_evidence(question: str) -> list[str]:
+    """Only handle explicit two-concept 'diferencia' questions in this release."""
+    concepts = terms(question)
+    if "diferencia" in question.casefold() and len(concepts) == 2:
+        return concepts
+    return []
+
+
+def _independent_excerpt_support(text: str, concepts: list[str]) -> bool:
+    """Reject a co-mention that does not explain both concepts separately."""
+    parts = [set(terms(line, max_terms=None)) & set(concepts) for line in text.splitlines()]
+    return all(any(part == {concept} for part in parts) for concept in concepts)
+
+
+def _compose_two_card_comparison(question: str, root) -> tuple[list[dict], str] | None:
+    """Use two trusted title-anchored definition excerpts if both exist."""
+    concepts = _comparison_needs_distinct_evidence(question)
+    if not concepts:
+        return None
+    cards, _ = load_trusted_corpus(root or default_root())
+    selections = []
+    for concept in concepts:
+        matched = []
+        for card in cards:
+            title_terms = set(terms(card["title"], max_terms=None))
+            if (title_terms & set(concepts)) != {concept}:
+                continue
+            sentences = re.split(r"(?<=[.!?])\s+", card["text"].strip())
+            for sentence in sentences:
+                sentence_terms = set(terms(sentence, max_terms=None)) & set(concepts)
+                if sentence_terms == {concept} and 24 <= len(sentence) <= 750:
+                    matched.append((card, sentence))
+                    break
+        # Ambiguous title-to-concept mapping must never be silently resolved.
+        if len(matched) != 1:
+            return None
+        selections.append(matched[0])
+    hits = [selection[0] for selection in selections]
+    if len({hit["id"] for hit in hits}) != len(concepts):
+        return None
+    answer = "\n".join(
+        f"[S{position}] {selection[1]}" for position, selection in enumerate(selections, 1)
+    )
+    if assess_generated_answer(answer, hits) != "accepted":
+        return None
+    return hits, answer
 
 
 def _request_local_ollama(url: str, payload: bytes) -> dict:
@@ -69,7 +183,11 @@ def ask(
         if mode == "sparse"
         else search_hybrid(question, root, limit=top_k)
     )
-    if not hits:
+    evidence = _compose_approved_excerpts(question, hits) if hits else None
+    concepts = _comparison_needs_distinct_evidence(question)
+    if concepts and (evidence is None or not _independent_excerpt_support(evidence[1], concepts)):
+        evidence = _compose_two_card_comparison(question, root)
+    if evidence is None:
         return {
             "status": "insufficient_evidence",
             "answer": "No encuentro evidencia suficiente en el corpus local para responder. "
@@ -78,6 +196,8 @@ def ask(
             "hits": [],
             "notice": NOTICE,
         }
+    chosen, extractive = evidence
+    hits = chosen if isinstance(chosen, list) else [chosen]
     _, sources = load_corpus(root)
     citations = []
     for i, h in enumerate(hits, 1):
@@ -93,7 +213,6 @@ def ask(
                     "rights": source["rights"],
                 }
             )
-    extractive = "\n\n".join(f"[S{i}] {h['title']}: {h['text']}" for i, h in enumerate(hits, 1))
     response = extractive
     engine_status = "extractive"
     if llm == "ollama":

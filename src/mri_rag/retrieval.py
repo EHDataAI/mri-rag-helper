@@ -13,11 +13,13 @@ from .trusted_index import load_trusted_corpus, open_verified_index
 
 STOP = set(
     "de del la las los el un una unos unas para por con en que cual cuales es son se al como "
-    "a o y su sus qué cómo cuál dónde explica sobre sirve tiene hay puede entre rm resonancia magnetica mri irm".split()
+    "a o y su sus qué cómo cuál dónde explica sobre sirve tiene hay puede entre rm resonancia magnetica mri irm "
+    "diferencia diferencias significa significado usa hacer preparar alguien utiliza secuencia "
+    "secuencias generar".split()
 )
 
 
-def terms(s: str) -> list[str]:
+def terms(s: str, *, max_terms: int | None = 20) -> list[str]:
     norm = "".join(
         c for c in unicodedata.normalize("NFKD", s.casefold()) if not unicodedata.combining(c)
     )
@@ -27,7 +29,7 @@ def terms(s: str) -> list[str]:
             for w in re.findall(r"[a-z0-9]+", norm)
             if (len(w) >= 3 or w in {"t1", "t2", "tr", "te", "b0"}) and w not in STOP
         )
-    )[:20]
+    )[:max_terms]
 
 
 def build_index(root: Path | None = None, dest: Path | None = None) -> dict:
@@ -81,11 +83,15 @@ def search_sparse(
     results = []
     for raw, score in rows:
         card = json.loads(raw)
-        doc_terms = set(terms(card["title"] + " " + card["keywords"] + " " + card["text"]))
+        doc_terms = set(
+            terms(card["title"] + " " + card["keywords"] + " " + card["text"], max_terms=None)
+        )
         overlap = len(set(query_terms) & doc_terms)
         coverage = overlap / len(query_terms)
-        # 1 palabra relevante para consultas cortas; al menos 2 para >= 5 términos.
-        if overlap < (2 if len(query_terms) >= 5 else 1):
+        # For two-concept questions, one incidental word is not enough.
+        # Preserve the original broad-query rule until independently calibrated.
+        required = 2 if len(query_terms) == 2 or len(query_terms) >= 5 else 1
+        if overlap < required:
             continue
         results.append(
             {
