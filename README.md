@@ -1,4 +1,4 @@
-# MRI-RAG-HELPER
+# MRI RAG HELPER
 
 > Laboratorio RAG local en español sobre Resonancia Magnética, para estudiantes de salud. **Prototipo de investigación y portafolio: no dispositivo médico, no consejo clínico.**
 
@@ -149,4 +149,4 @@ su despliegue.
 
 La identidad visible pasa a **MRI-RAG-HELPER**, con interfaz **dark-first** de baja luminosidad, variante clara opcional y referencias agrupadas por evidencia S1/S2. El motor RAG, el paquete `mri_rag` y la CLI `mri-rag` no se renombran. La demostración no está validada para decisiones clínicas.
 
-La licencia conserva las atribuciones históricas de MRI-RAG Academy Lab. La migración del nombre del repositorio y la URL pública se realizará por separado, tras superar los quality gates.
+La licencia conserva las atribuciones históricas de MRI-RAG Academy Lab. El repositorio público ya utiliza el nombre `EHDataAI/mri-rag-helper`. La integración de RC1.1 en `main` y su despliegue continúan sujetos a los quality gates y a la revisión correspondiente.
