@@ -60,3 +60,18 @@ publicación RC1.1 pendiente.
 ## RC1.1-N4 - Candidato de accesibilidad visual
 
 Se propone el nombre MRI-RAG-HELPER, temas claro/oscuro nativos, modo oscuro inicial de baja luminosidad y agrupación visual de citas por ficha. Los controles automatizados del candidato RC17-B2-R5 aprobaron 189 pruebas, Ruff y Bandit (sin hallazgos ni advertencias). La inspección manual de accesibilidad visual, navegación por teclado, contraste y temas claro/oscuro continúa pendiente. La auditoría clínica externa y la publicación también permanecen pendientes.
+
+
+## Evidencia complementaria RC1.1 - B5-B9 (2026-11-07)
+
+- Commit de referencia: `1f4a748ac40a1c0a7179e6c858d1d7f6e8661548`.
+- Firma SSH: verificada por GitHub (`verified: true`, `reason: valid`).
+- Suite local comunicada para la iteración: 207 pruebas aprobadas.
+- Corpus registrado: 20 fichas educativas y 15 referencias.
+- PR #1: dos controles `quality` aprobados antes del ajuste documental.
+- La revisión clínica por pares y la inspección manual integral de
+  accesibilidad continúan pendientes.
+
+Esta sección es complementaria y no modifica los resultados
+históricos de las etapas RC0 y RC1.1 anteriores. El nuevo commit
+documental requerirá una ejecución independiente de los controles CI.
