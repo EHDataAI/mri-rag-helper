@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import streamlit as st
 
 from mri_rag.answer import ask
 from mri_rag.corpus import load_corpus, verify_manifest
 
-st.set_page_config(page_title="MRI-RAG Academy | Demo", layout="wide")
-st.title("MRI-RAG Academy")
-st.caption("Demostración educativa de resonancia magnética; no es software médico.")
+st.set_page_config(page_title="MRI-RAG-HELPER | Demo", layout="wide")
+st.html(Path(__file__).resolve().parent / "assets/mri_helper.css")
+with st.container(border=True, key="mri_helper_hero"):
+    st.title("MRI-RAG-HELPER")
+    st.caption("Asistente educativo de resonancia magnética basado en evidencias.")
 st.warning(
     "Contenido pendiente de revisión clínica por pares. "
     "No introduzca datos de pacientes. No utilizar para decisiones diagnósticas, "
@@ -39,20 +43,25 @@ if st.button("Consultar evidencias", type="primary"):
     else:
         try:
             result = ask(question, mode="sparse", llm="none", top_k=3)
-            st.subheader("Respuesta documental")
-            st.write(result["answer"])
-            st.caption(result.get("engine_status", result["status"]))
-            if result.get("citations"):
-                st.subheader("Referencias")
-                seen = set()
-                for citation in result["citations"]:
-                    key = (citation["ref"], citation["source_id"])
-                    if key not in seen:
-                        st.markdown(
-                            f"**[{citation['ref']}]** [{citation['title']}]({citation['url']})"
-                        )
-                        seen.add(key)
-            st.caption(result["notice"])
+            with st.container(border=True, key="mri_helper_result"):
+                st.subheader("Respuesta documental")
+                st.write(result["answer"])
+                engine = result.get("engine_status", result["status"])
+                st.caption("Respuesta extractiva" if engine == "extractive" else engine)
+                if result.get("citations"):
+                    st.subheader("Referencias")
+                    grouped: dict[str, list[dict]] = {}
+                    seen = set()
+                    for citation in result["citations"]:
+                        key = (citation["ref"], citation["source_id"])
+                        if key not in seen:
+                            grouped.setdefault(citation["ref"], []).append(citation)
+                            seen.add(key)
+                    for ref, citations in grouped.items():
+                        st.markdown(f"**Evidencia [{ref}]**")
+                        for citation in citations:
+                            st.markdown(f"[{citation['title']}]({citation['url']})")
+                st.caption(result["notice"])
         except (RuntimeError, ImportError, OSError, ValueError):
             st.error("La consulta no está disponible. Revise el estado del servicio.")
 

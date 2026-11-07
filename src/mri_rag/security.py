@@ -8,14 +8,18 @@ import unicodedata
 from urllib.parse import urlparse
 
 INJECTION = re.compile(
-    r"(?i)(ignora (todas |las )?instrucciones|revela (tu |el )?(prompt|system)|"
+    r"(?i)(ignora\s+(?:(?:todas?|las|tus|mis|sus|anteriores|previas)\s+)*instrucciones|"
+    r"olvida\s+(?:(?:todas?|las|tus|anteriores|previas)\s+)*instrucciones|"
+    r"revela (tu |el )?(prompt|system)|"
     r"ignore (all |previous )?instructions|system prompt|act[uú]a como sistema|"
     r"desactiva (tus |las )?restricciones|\bdeveloper message\b)"
 )
 PATIENT = re.compile(
     r"(?i)\b(mi paciente|paciente con|tengo un|tengo una|me puedo|puedo entrar|puedo hacerme|"
     r"puede entrar|estoy embarazada|mi madre|mi padre|mi hijo|a este paciente|"
-    r"debo administrar|qu[eé] dosis|me hago una|me har[aá]n|es seguro hacer)\b"
+    r"debo administrar|qu[eé] dosis|me hago una|me har[aá]n|es seguro hacer|"
+    r"cu[aá]ntos?\s+(?:mililitros|ml|mg|mmol)\s+de\s+"
+    r"(?:gadolinio|contraste)\s+debo\s+recibir)\b"
 )
 RISK = re.compile(
     r"(?i)\b(marcapasos|implante|gadolinio|contraste|embarazad[ao]|"
@@ -71,7 +75,12 @@ def screen_question(question: str) -> tuple[bool, str]:
         or ROLE_MARKERS.search(normalized)
         or HIDDEN_MARKUP.search(normalized)
     ):
-        return False, "Consulta incompatible con el uso educativo seguro."
+        return False, (
+            "He detectado una instrucción que intenta modificar las reglas de seguridad "
+            "o verificación de fuentes del asistente. No puedo seguirla. "
+            "Puede formular una pregunta educativa sobre resonancia magnética; "
+            "responderé únicamente con evidencia del corpus autorizado."
+        )
     if PATIENT.search(normalized) and RISK.search(normalized):
         return False, (
             "No puedo determinar la seguridad ni decidir un procedimiento para una "

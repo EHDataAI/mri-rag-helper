@@ -121,3 +121,32 @@ de benchmark reducidas; contenido pendiente de revisión clínica por pares.
 No cargar información de pacientes ni usarlo para decisiones clínicas.
 La base SQLite se reconstruye durante el arranque y el almacenamiento local
 de Streamlit Community Cloud puede ser efímero.
+
+## Estado RC1.1 - Relevancia y fundamentación (2026-10-26)
+
+RC1.1 incorpora recuperación léxica más selectiva, composición extractiva
+de respuestas y comparaciones T1/T2 sustentadas en dos fichas independientes.
+
+Validaciones locales: 130 pruebas Pytest/JUnit aprobadas; auditoría
+funcional de 11 consultas aprobada; corpus de 20 fichas y 14 fuentes
+verificado. Las evaluaciones DEV y TEST mantienen Hit@3 = 1.0;
+MRR@3 = 0.9583 (DEV) y 1.0 (TEST); abstención OOD TEST = 1.0.
+
+Ruff, Bandit y los análisis de Gitleaks del historial Git y de una
+copia del árbol de trabajo finalizaron correctamente, con cero
+hallazgos de secretos. pip-audit no encontró vulnerabilidades conocidas
+en dependencias auditables; el paquete local no fue auditado mediante PyPI.
+
+La revisión clínica independiente y la validación con preguntas
+externas siguen pendientes. Estas pruebas no acreditan seguridad
+clínica, generalización ni exactitud médica independiente.
+
+RC1.1 continúa en preparación de release. La demostración pública
+basada en main permanece en RC1 hasta aprobar el pull request y
+su despliegue.
+
+## RC1.1-N4 - Identidad y accesibilidad visual (candidato)
+
+La identidad visible pasa a **MRI-RAG-HELPER**, con interfaz **dark-first** de baja luminosidad, variante clara opcional y referencias agrupadas por evidencia S1/S2. El motor RAG, el paquete `mri_rag` y la CLI `mri-rag` no se renombran. La demostración no está validada para decisiones clínicas.
+
+La licencia conserva las atribuciones históricas de MRI-RAG Academy Lab. El repositorio público ya utiliza el nombre `EHDataAI/mri-rag-helper`. La integración de RC1.1 en `main` y su despliegue continúan sujetos a los quality gates y a la revisión correspondiente.

@@ -25,3 +25,38 @@ El test fue escrito con vocabulario muy cercano al corpus original. Los tres eje
 ## Decisión de release
 
 **RC0 = APTO PARA REVISIÓN LOCAL; BLOCK para despliegue público o uso educativo institucional hasta cerrar gates.**
+
+## RC1.1 - Auditoría de relevancia y respuestas (2026-10-26)
+
+Este apartado complementa el informe histórico RC0 anterior; no
+modifica sus resultados originales.
+
+| Gate local | Resultado | Alcance |
+|---|---|---|
+| RC1.1-D1 | PASS | 130 pruebas JUnit; Ruff; integridad del corpus |
+| RC1.1-D2 | PASS | 11 consultas funcionales y control de citas |
+| RC1.1-D3 | PASS | Bandit; pip-audit; Gitleaks con cero hallazgos |
+| RC1.1-E0 | PASS | Evaluaciones de recuperación compatibles con CI |
+| RC1.1-E1 | PASS | 41 archivos propuestos; SHA-256 reconciliados |
+
+Indicadores de recuperación:
+- DEV: 12 casos; Hit@3 = 1.0; MRR@3 = 0.9583.
+- TEST: 11 casos; Hit@3 = 1.0; MRR@3 = 1.0;
+  abstención fuera de dominio = 1.0.
+- Corpus: 20 fichas educativas y 14 fuentes referenciadas.
+
+Limitaciones y pendientes:
+- El conjunto de evaluación es reducido y no constituye validación externa.
+- La correspondencia literal de citas no garantiza corrección clínica.
+- La revisión independiente por profesionales de RM y física médica sigue pendiente.
+- pip-audit excluyó el paquete local no publicado en PyPI.
+- Gitleaks sin hallazgos no demuestra ausencia absoluta de secretos.
+- El resultado remoto de GitHub Actions para RC1.1 todavía no existe.
+- No se ha autorizado el merge ni el despliegue público de RC1.1.
+
+Estado: controles locales aprobados dentro del alcance descrito;
+publicación RC1.1 pendiente.
+
+## RC1.1-N4 - Candidato de accesibilidad visual
+
+Se propone el nombre MRI-RAG-HELPER, temas claro/oscuro nativos, modo oscuro inicial de baja luminosidad y agrupación visual de citas por ficha. Los controles automatizados del candidato RC17-B2-R5 aprobaron 189 pruebas, Ruff y Bandit (sin hallazgos ni advertencias). La inspección manual de accesibilidad visual, navegación por teclado, contraste y temas claro/oscuro continúa pendiente. La auditoría clínica externa y la publicación también permanecen pendientes.

@@ -7,8 +7,8 @@ import streamlit as st
 from mri_rag.answer import ask
 from mri_rag.corpus import load_corpus, verify_manifest
 
-st.set_page_config(page_title="MRI-RAG Academy", page_icon="📖", layout="wide")
-st.title("MRI-RAG Academy")
+st.set_page_config(page_title="MRI-RAG-HELPER", page_icon="📖", layout="wide")
+st.title("MRI-RAG-HELPER")
 st.caption("Tutor documental de Resonancia Magnética · laboratorio público · no es software médico")
 st.warning(
     "Solo educación. No utilice datos de pacientes ni este sistema para autorizar estudios, implantes o tratamientos."
