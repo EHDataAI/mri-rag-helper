@@ -10,10 +10,18 @@ import pytest
 import mri_rag.answer as answer_module
 from mri_rag.generation_guard import assess_generated_answer, build_grounded_prompt
 from mri_rag.retrieval import search_sparse
+from mri_rag.trusted_index import load_trusted_corpus
 
 
 def _trusted_hits(corpus_root):
     return search_sparse("¿Qué es la relajación T1?", corpus_root, limit=3)
+
+
+def _two_trusted_hits(corpus_root):
+    """Two vetted documents for source-binding tests, independent of ranking."""
+    cards, _ = load_trusted_corpus(corpus_root)
+    by_id = {card["id"]: card for card in cards}
+    return [by_id["mri_t1"], by_id["mri_t2"]]
 
 
 def _verbatim(hits, index=0):
@@ -26,7 +34,7 @@ def test_verbatim_accepted(corpus_root):
 
 
 def test_two_verbatim_lines(corpus_root):
-    hits = _trusted_hits(corpus_root)
+    hits = _two_trusted_hits(corpus_root)
     assert len(hits) >= 2
     response = _verbatim(hits, 0) + "\n" + _verbatim(hits, 1)
     assert assess_generated_answer(response, hits) == "accepted"
@@ -65,7 +73,7 @@ def test_nonstring_rejected(corpus_root):
 
 
 def test_wrong_hit_binding_rejected(corpus_root):
-    hits = _trusted_hits(corpus_root)
+    hits = _two_trusted_hits(corpus_root)
     assert len(hits) >= 2
     text = hits[1]["text"][:100]
     assert assess_generated_answer(f"[S1] {text}", hits) == "unverified"

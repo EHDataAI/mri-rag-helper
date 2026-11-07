@@ -1,0 +1,35 @@
+/* MRI-RAG-HELPER RC1.1-N4: theme-adaptive Soft Glass; no forced text colors. */
+.st-key-mri_helper_hero,
+.st-key-mri_helper_result {
+    color: inherit;
+    background-color: transparent;
+    border-radius: 16px;
+    border: 1px solid currentColor;
+    border-color: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.st-key-mri_helper_hero {
+    background: color-mix(in srgb, currentColor 4%, transparent);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.st-key-mri_helper_result {
+    background: color-mix(in srgb, currentColor 3%, transparent);
+}
+
+@supports not (background: color-mix(in srgb, white 3%, transparent)) {
+    .st-key-mri_helper_hero,
+    .st-key-mri_helper_result {
+        background-color: transparent;
+        border-color: currentColor;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .st-key-mri_helper_hero,
+    .st-key-mri_helper_result {
+        animation: none !important;
+        transition: none !important;
+    }
+}

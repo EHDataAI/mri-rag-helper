@@ -15,3 +15,19 @@ Las **20 fichas son texto nuevo y original** de este proyecto. No se incluyen do
 **Regla de ingestión futura:** verificar titular, licencia de texto y de imágenes de cada pieza, versión, fecha de revisión, permiso para machine processing/generative AI, términos de acceso y trazabilidad SHA-256. Rechazar por defecto ante dudas.
 
 **Licencias del propio laboratorio:** código MIT (LICENSE), fichas originales CC BY 4.0 (corpus/CONTENT_LICENSE.md). Esas licencias no se trasladan a recursos de terceros enlazados.
+
+
+## Actualización del catálogo (2026-11-07)
+
+El catálogo actual contiene 15 referencias. La fecha de contrastación
+manual del 20 de octubre de 2026 corresponde al catálogo original;
+posteriormente se incorporaron actualizaciones de referencias.
+
+La comprobación de disponibilidad de enlaces se realiza mediante
+mecanismos de auditoría independientes. No se efectúa una solicitud
+HTTP a cada referencia durante cada consulta pública del RAG.
+La disponibilidad observada en una fecha no garantiza que el recurso
+permanezca accesible posteriormente.
+
+Las referencias externas no sustituyen la revisión clínica por pares
+del contenido educativo.

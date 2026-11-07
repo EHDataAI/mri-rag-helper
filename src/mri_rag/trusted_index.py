@@ -19,7 +19,7 @@ from pathlib import Path
 from .corpus import load_corpus, sha256_bytes, verify_manifest
 
 # Approved RC0 manifest; deliberate corpus releases must update this trusted pin.
-APPROVED_MANIFEST_SHA256 = "3e76f0a117cb704b3f8e1f8d2006ba1817b3f3cd94c76f5c3225368fc7332096"
+APPROVED_MANIFEST_SHA256 = "219d05a6b449b213c70673cbd24ee61080f035b82a4a004f5bb8778fd7f32aa1"
 APPROVED_FILES = {"corpus/cards.jsonl", "corpus/sources.json"}
 
 ROLE_MARKERS = re.compile(
@@ -82,7 +82,7 @@ def load_trusted_corpus(root: Path) -> tuple[list[dict], dict[str, dict]]:
     if len(checks) != len(APPROVED_FILES) or not all(checks.values()):
         raise ValueError("SECURITY_BLOCK: hash del corpus incorrecto")
     cards, sources = load_corpus(root)
-    if len(cards) != 20 or len(sources) != 14:
+    if len(cards) != 20 or len(sources) != 15:
         raise ValueError("SECURITY_BLOCK: tamaño inesperado del corpus RC0")
     for card in cards:
         for field in ("title", "keywords", "text"):

@@ -12,7 +12,7 @@ from .retrieval import build_index
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description="MRI-RAG Academy | laboratorio educativo")
+    p = argparse.ArgumentParser(description="MRI-RAG-HELPER | laboratorio educativo")
     sub = p.add_subparsers(dest="command", required=True)
     sub.add_parser("build", help="Verifica manifiesto y construye SQLite FTS5")
     sub.add_parser("preflight", help="Comprueba integridad y metadatos")

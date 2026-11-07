@@ -1,0 +1,28 @@
+# MRI-RAG-HELPER: native, switchable low-glare themes.
+[theme]
+base = "dark"
+showWidgetBorder = true
+
+[theme.dark]
+primaryColor = "#226C84"
+backgroundColor = "#0F1722"
+secondaryBackgroundColor = "#192533"
+textColor = "#D4DDE6"
+linkColor = "#82C8D7"
+
+[theme.dark.sidebar]
+backgroundColor = "#151E29"
+secondaryBackgroundColor = "#192533"
+textColor = "#D4DDE6"
+
+[theme.light]
+primaryColor = "#176179"
+backgroundColor = "#F0F4F7"
+secondaryBackgroundColor = "#E5ECF0"
+textColor = "#1B2630"
+linkColor = "#176179"
+
+[theme.light.sidebar]
+backgroundColor = "#E5ECF0"
+secondaryBackgroundColor = "#F0F4F7"
+textColor = "#1B2630"
