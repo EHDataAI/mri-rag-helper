@@ -2,7 +2,7 @@
   "version": "0.1.0",
   "created_on": "2026-10-20",
   "sha256": {
-    "corpus/cards.jsonl": "606ae0965f4b24b9a623cd2590456d4a9128345e27377220d781661efab8271f",
-    "corpus/sources.json": "0295352343955fb42b3b55702f9343fbfbfa6c91427173c3607c34c91ce5d6a9"
+    "corpus/cards.jsonl": "ad9c14fd69f9102834d73fa213144809ec0fa4ab66d63384def7a8c969c58e60",
+    "corpus/sources.json": "a0d6c8580a95bca034634c65c049de7b98669242b4b8e516816ae06a128724bf"
   }
 }

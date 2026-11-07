@@ -110,5 +110,13 @@
     "rights": "link_only_license_unverified",
     "purpose": "secuencias",
     "checked_on": "2026-10-20"
+  },
+  {
+    "id": "GBCA_RELAXIVITY_REVIEW_2024",
+    "title": "Safe and Informed Use of Gadolinium-Based Contrast Agent in Body MRI: Where We Were and Where We Are",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11051151/",
+    "rights": "link_only_license_unverified",
+    "purpose": "Fundamento de relajividad T1/T2 y efectos de señal; resumen original, sin reproducción del artículo",
+    "checked_on": "2026-11-05"
   }
 ]

@@ -15,7 +15,7 @@ from mri_rag.trusted_index import inspect_document_text, load_trusted_corpus
 def test_authorized_corpus_is_accepted(corpus_root):
     cards, sources = load_trusted_corpus(corpus_root)
     assert len(cards) == 20
-    assert len(sources) == 14
+    assert len(sources) == 15
 
 
 def test_untampered_index_answers(corpus_root, temp_index):

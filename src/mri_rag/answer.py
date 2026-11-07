@@ -81,10 +81,28 @@ def _compose_approved_excerpts(question: str, hits: list[dict]) -> tuple[dict, s
 
 
 def _comparison_needs_distinct_evidence(question: str) -> list[str]:
-    """Only handle explicit two-concept 'diferencia' questions in this release."""
+    """Recognize explicit comparisons without treating context words as concepts."""
+    normalized = question.casefold()
+
+    comparative = (
+        "diferencia" in normalized or "diferencian" in normalized or "diferenciar" in normalized
+    )
+
+    if not comparative:
+        return []
+
     concepts = terms(question)
-    if "diferencia" in question.casefold() and len(concepts) == 2:
+
+    # T1/T2 definitions must not be replaced by a contrast-agent discussion.
+    if {"t1", "t2"} <= set(concepts) and not any(
+        word in normalized for word in ("gadolinio", "contraste", "gbca")
+    ):
+        return ["t1", "t2"]
+
+    # Preserve the existing generic two-concept comparison behavior.
+    if "diferencia" in normalized and len(concepts) == 2:
         return concepts
+
     return []
 
 
@@ -126,6 +144,71 @@ def _compose_two_card_comparison(question: str, root) -> tuple[list[dict], str] 
     if assess_generated_answer(answer, hits) != "accepted":
         return None
     return hits, answer
+
+
+def _compose_intent_bound_evidence(question: str, root):
+    """Narrow, auditable evidence routing for documented educational intents.
+
+    Returns:
+        (True, evidence): handled with validated evidence or abstention.
+        (False, None): leave the decision to the existing general composer.
+
+    This is not a general semantic entailment engine.
+    """
+    query = set(terms(question, max_terms=None))
+    cards, _ = load_trusted_corpus(root or default_root())
+    by_id = {card["id"]: card for card in cards}
+
+    def select(card_id: str, fragment: str):
+        card = by_id.get(card_id)
+        if card is None:
+            return True, None
+
+        sentences = re.split(r"(?<=[.!?])\s+", card["text"].strip())
+        matches = [sentence.strip() for sentence in sentences if fragment in sentence]
+
+        if len(matches) != 1:
+            return True, None
+
+        excerpt = f"[S1] {matches[0]}"
+
+        if assess_generated_answer(excerpt, [card]) != "accepted":
+            return True, None
+
+        return True, (card, excerpt)
+
+    # An explicit T2 versus T2* comparison requires the approved
+    # intrinsic-relaxation distinction, not an unrelated TR/TE card.
+    normalized = question.casefold()
+    if (
+        re.search(r"\bt2\s*\*", normalized)
+        and re.search(r"\bt2\b(?!\s*\*)", normalized)
+        and any(marker in normalized for marker in ("diferencia", "diferencian", "diferenciar"))
+    ):
+        return select(
+            "mri_t2",
+            "Se debe diferenciar el T2 intrínseco de T2*",
+        )
+
+    # An absolute disease claim cannot be inferred from retention alone.
+    if {"retencion", "gadolinio", "enfermedad"} <= query:
+        return True, None
+
+    # Select the direct T2 signal statement for this absolute claim.
+    if {"gadolinio", "siempre", "t2"} <= query and ("aumenta" in query or "aumentar" in query):
+        return select(
+            "mri_contraste",
+            "El acortamiento de T2 y T2* puede disminuir",
+        )
+
+    # Recover the authorized safety explanation, not an incidental keyword hit.
+    if {"riesgo", "implantes"} <= query and ("mecanismos" in query or "mecanismo" in query):
+        return select(
+            "mri_cribado",
+            "Es importante verificar los implantes y objetos",
+        )
+
+    return False, None
 
 
 def _request_local_ollama(url: str, payload: bytes) -> dict:
@@ -185,8 +268,15 @@ def ask(
     )
     evidence = _compose_approved_excerpts(question, hits) if hits else None
     concepts = _comparison_needs_distinct_evidence(question)
-    if concepts and (evidence is None or not _independent_excerpt_support(evidence[1], concepts)):
-        evidence = _compose_two_card_comparison(question, root)
+    handled, intent_evidence = _compose_intent_bound_evidence(question, root)
+    if handled:
+        evidence = intent_evidence
+    if concepts and not handled:
+        comparison = _compose_two_card_comparison(question, root)
+        if comparison is not None:
+            evidence = comparison
+        elif evidence is None or not _independent_excerpt_support(evidence[1], concepts):
+            evidence = None
     if evidence is None:
         return {
             "status": "insufficient_evidence",
