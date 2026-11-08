@@ -1,4 +1,10 @@
-# MRI RAG HELPER
+# MRI-RAG-HELPER
+
+**Demo pública:** [Abrir MRI-RAG-HELPER en Streamlit](https://mri-rag-hlpr.streamlit.app/)  
+**Código fuente:** [EHDataAI/mri-rag-helper](https://github.com/EHDataAI/mri-rag-helper)  
+**Versión publicada:** [v0.1.0-rc1.1 (pre-release)](https://github.com/EHDataAI/mri-rag-helper/releases/tag/v0.1.0-rc1.1)
+
+> **Uso exclusivamente académico.** Tutor documental de resonancia magnética con recuperación SQLite FTS5, respuestas extractivas y referencias visibles. El contenido está pendiente de revisión clínica independiente. No introducir datos de pacientes ni usar para decisiones diagnósticas, implantes, medios de contraste o tratamientos.
 
 > Laboratorio RAG local en español sobre Resonancia Magnética, para estudiantes de salud. **Prototipo de investigación y portafolio: no dispositivo médico, no consejo clínico.**
 
@@ -100,16 +106,28 @@ mri-rag eval --split test --k 3
 - [Decisiones de stack](docs/TECH_STACK_DECISIONS.md)
 - [Informe QA RC0](docs/QA_REPORT.md)
 
-## Demostración pública RC1 (Streamlit Community Cloud)
+## Demostración pública RC1.1 (Streamlit Community Cloud)
+
+**Aplicación disponible:** https://mri-rag-hlpr.streamlit.app/
 
 La demostración pública usa `streamlit_public.py`, Python 3.12, recuperación
 SQLite FTS5 y **respuestas extractivas únicamente**. No instala ni activa Ollama,
 embeddings E5, modelos externos o claves de API.
 
-1. Publicar el código tras pasar los controles de QA y revisar secretos.
-2. Crear la aplicación en Streamlit Community Cloud desde el repositorio GitHub.
-3. Seleccionar rama `main`, archivo principal `streamlit_public.py` y Python 3.12.
-4. Comprobar reconstrucción de FTS5, consulta educativa y referencias en navegador.
+La aplicación fue publicada en Streamlit Community Cloud y se comprobó su funcionamiento
+en navegador con preguntas académicas y referencias visibles. Configuración de despliegue:
+rama `main`, entrada `streamlit_public.py` y Python 3.12.
+
+Para reproducir la demo pública localmente:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m streamlit run streamlit_public.py
+```
+
+La variante `app.py` es una interfaz **local** de laboratorio con opciones de recuperación
+híbrida y Ollama; esas opciones **no están activadas en la demo pública**.
 
 El archivo `requirements.txt` instala el paquete local y usa
 `constraints-cloud.txt` para fijar las 35 dependencias resueltas de una
@@ -141,15 +159,15 @@ La revisión clínica independiente y la validación con preguntas
 externas siguen pendientes. Estas pruebas no acreditan seguridad
 clínica, generalización ni exactitud médica independiente.
 
-RC1.1 continúa en preparación de release. La demostración pública
-basada en main permanece en RC1 hasta aprobar el pull request y
-su despliegue.
+Nota histórica: este párrafo describía el estado previo a la integración
+de RC1.1. La pre-release `v0.1.0-rc1.1` ya fue publicada y la
+demo pública está disponible en el enlace de inicio.
 
 ## RC1.1-N4 - Identidad y accesibilidad visual (candidato)
 
 La identidad visible pasa a **MRI-RAG-HELPER**, con interfaz **dark-first** de baja luminosidad, variante clara opcional y referencias agrupadas por evidencia S1/S2. El motor RAG, el paquete `mri_rag` y la CLI `mri-rag` no se renombran. La demostración no está validada para decisiones clínicas.
 
-La licencia conserva las atribuciones históricas de MRI-RAG Academy Lab. El repositorio público ya utiliza el nombre `EHDataAI/mri-rag-helper`. La integración de RC1.1 en `main` y su despliegue continúan sujetos a los quality gates y a la revisión correspondiente.
+La licencia conserva las atribuciones históricas de MRI-RAG Academy Lab. El repositorio público utiliza el nombre `EHDataAI/mri-rag-helper`. La integración de RC1.1 en `main` y su publicación como pre-release están completadas; las futuras modificaciones continúan sujetas a los quality gates.
 
 
 ## RC1.1 - Actualización de integración (2026-11-07)
@@ -168,3 +186,15 @@ publique el próximo commit.
 La aplicación es una demostración educativa. Las fichas permanecen
 pendientes de revisión clínica externa por pares. No utilizar datos
 de pacientes ni emplear las respuestas para decisiones clínicas.
+
+## Estado de despliegue y alcance (2026-11-08)
+
+- **URL pública canónica:** https://mri-rag-hlpr.streamlit.app/
+- **Versión de referencia:** `v0.1.0-rc1.1` (pre-release firmada).
+- **Interfaz pública:** `streamlit_public.py`; recuperación FTS5 y respuestas extractivas sin LLM.
+- **Corpus:** 20 fichas originales, 15 fuentes registradas, verificación de integridad antes de atender consultas.
+- **Alcance:** prototipo educativo de portafolio; no constituye software médico ni contenido validado clínicamente.
+
+La disponibilidad del enlace y las respuestas se deben comprobar periódicamente; un
+despliegue funcional, una prueba automatizada o una referencia bibliográfica no
+equivalen a validación clínica del contenido.
